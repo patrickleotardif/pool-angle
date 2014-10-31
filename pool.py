@@ -1,6 +1,7 @@
 from math import *
 from random import *
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt 
+# ^ not needed for interactive IPython imports
 
 #describe the pool table
 class poolTable:
