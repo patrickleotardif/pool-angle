@@ -6,8 +6,8 @@ from random import *
 #describe the pool table
 class poolTable:
   def __init__(self,x,y):
-    pocketSide = y #for simplicity x and y are used 
-    plainSide = x
+    pocketSide = float(y) #for simplicity x and y are used 
+    plainSide = float(x)
     self.points = [
       [0,0],
       [plainSide,0],
@@ -16,16 +16,17 @@ class poolTable:
       [0,pocketSide],
       [plainSide,pocketSide]
     ]
-    self.x = x
-    self.y = y
-    self.long = max(x,y)
+    self.x = float(x)
+    self.y = float(y)
+    self.long = float(max(x,y))
 
 #angle given all other variables in degrees
 def angle(pocket,cue,ball):
   a = length(cue,ball)
-  b = length(cue,pocket)
-  c = length(ball,pocket)
-  return degrees(acos(
+  b = length(ball,pocket)
+  c = length(cue,pocket)
+
+  return 180 - degrees(acos(
       (pow(a,2) + pow(b,2) - pow(c,2))
       / (2*a*b)
   ))
@@ -40,7 +41,7 @@ def bestAngle(table,cue,ball):
   for pocket in table.points:
     pocketAngle = angle(pocket,cue,ball)
     if not solution or pocketAngle < solution[1]:
-      solution = (pocket, pocketAngle)
+      solution = (table.points.index(pocket)+1, pocketAngle, pocket)
   return solution
 
 #show a representative plot given all variables
@@ -63,16 +64,26 @@ def visualize(cue,ball,pocket,table,angle):
   plt.show()
 
 #iterate through many random simulations
-def simulate(x,y,iterations): #insert functionality for fixed cue ball
+def simulate(x,y,iterations,ballFix=False,cueFix=False,viz=False): 
   table = poolTable(x,y)
   solutions = []
-  cueYvals = []
+  cueVals = []
+  pockets = []
+  ballVals = []
   for i in range(iterations):
-    cue = [uniform(0,table.x),uniform(0,table.y)]
-    ball = [uniform(0,table.x),uniform(0,table.y)]
+    if not cueFix:
+    	cue = [uniform(0,table.x),uniform(0,table.y)]
+    else:
+        cue = cueFix
+    if not ballFix:
+    	ball = [uniform(0,table.x),uniform(0,table.y)]
+    else:
+	ball = ballFix
     best = bestAngle(table,cue,ball)
-    #print 'cue:%s ball:%s pocket:%s angle:%s' % (cue,ball,best[0],best[1])
-    visualize(cue,ball,best[0],table,best[1])
+    if viz:
+    	visualize(cue,ball,best[2],table,best[1])
     solutions.append(best[1]) #modify to select angle
-    cueYvals.append(cue[1])
-  return (solutions, cueYvals)
+    cueVals.append((round(cue[0],1),round(cue[1],1)))
+    ballVals.append((round(ball[0],1),round(ball[1],1)))
+    pockets.append(best[0])
+  return (solutions,pockets,cueVals,ballVals)
