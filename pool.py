@@ -6,18 +6,19 @@ from random import *
 #describe the pool table
 class poolTable:
   def __init__(self,x,y):
-    longSide = float(max(x,y))
-    shortSide = float(min(x,y))
+    pocketSide = y #for simplicity x and y are used 
+    plainSide = x
     self.points = [
       [0,0],
-      [shortSide,0],
-      [0,longSide/2],
-      [shortSide,longSide/2],
-      [0,longSide],
-      [shortSide,longSide]
+      [plainSide,0],
+      [0,pocketSide/2],
+      [plainSide,pocketSide/2],
+      [0,pocketSide],
+      [plainSide,pocketSide]
     ]
-    self.long = longSide
-    self.short = shortSide
+    self.x = x
+    self.y = y
+    self.long = max(x,y)
 
 #angle given all other variables in degrees
 def angle(pocket,cue,ball):
@@ -47,7 +48,7 @@ def visualize(cue,ball,pocket,table,angle):
   tableX = map(lambda x: x[0], table.points)
   tableY = map(lambda x: x[1], table.points)
 
-  plt.xlim([-table.long*0.1,table.long*1.1])
+  plt.xlim([-table.long*0.1,table.long*1.1]) #in order to keep scaling consistent
   plt.ylim([-table.long*0.1,table.long*1.1])
 
   plt.plot(tableX,tableY,'bo')
@@ -56,7 +57,7 @@ def visualize(cue,ball,pocket,table,angle):
   plt.plot(ball[0],ball[1],'ko',ms=12)
 
   plt.plot([cue[0],ball[0]], [cue[1],ball[1]], 'k-')
-  plt.plot([cue[0],pocket[0]], [cue[1],pocket[1]], 'r-')
+  plt.plot([ball[0],pocket[0]], [ball[1],pocket[1]], 'r-')
 
   plt.text(cue[0],cue[1]-1,str(angle))
   plt.show()
@@ -67,11 +68,11 @@ def simulate(x,y,iterations): #insert functionality for fixed cue ball
   solutions = []
   cueYvals = []
   for i in range(iterations):
-    cue = [uniform(0,table.short),uniform(0,table.long)]
-    ball = [uniform(0,table.short),uniform(0,table.long)]
+    cue = [uniform(0,table.x),uniform(0,table.y)]
+    ball = [uniform(0,table.x),uniform(0,table.y)]
     best = bestAngle(table,cue,ball)
     #print 'cue:%s ball:%s pocket:%s angle:%s' % (cue,ball,best[0],best[1])
-    #visualize(cue,ball,best[0],table,best[1])
+    visualize(cue,ball,best[0],table,best[1])
     solutions.append(best[1]) #modify to select angle
     cueYvals.append(cue[1])
   return (solutions, cueYvals)
