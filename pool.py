@@ -1,5 +1,7 @@
 from math import *
 from random import *
+import numpy
+from itertools import *
 #import matplotlib.pyplot as plt 
 # ^ not needed for interactive IPython imports
 
@@ -25,10 +27,17 @@ def angle(pocket,cue,ball):
   a = length(cue,ball)
   b = length(ball,pocket)
   c = length(cue,pocket)
-
-  return 180 - degrees(acos(
-      (pow(a,2) + pow(b,2) - pow(c,2))
-      / (2*a*b)
+ 
+ # print cue,ball,pocket 
+ # print (pow(a,2) + pow(b,2) - pow(c,2))/ (2*a*b)
+  if a == 0 or b == 0:
+      return 0
+  else:
+      return 180 - degrees(acos(
+    max(min(  (pow(a,2) + pow(b,2) - pow(c,2))
+      / (2*a*b),
+       0.999999999
+       ), -0.999999999)
   ))
 
 #length between two points
@@ -38,10 +47,14 @@ def length(x,y):
 #returns best angle choice between the pockets
 def bestAngle(table,cue,ball):
   solution = False
-  for pocket in table.points:
-    pocketAngle = angle(pocket,cue,ball)
-    if not solution or pocketAngle < solution[1]:
-      solution = (table.points.index(pocket)+1, pocketAngle, pocket)
+  if list(ball) in table.points:
+     return (table.points.index(list(ball))+1,0,list(ball))
+
+  else:
+     for pocket in table.points:
+       pocketAngle = angle(pocket,cue,ball)
+       if not solution or pocketAngle < solution[1]:
+         solution = (table.points.index(pocket)+1, pocketAngle, pocket)
   return solution
 
 #show a representative plot given all variables
@@ -87,3 +100,43 @@ def simulate(x,y,iterations,ballFix=False,cueFix=False,viz=False):
     ballVals.append((round(ball[0],1),round(ball[1],1)))
     pockets.append(best[0])
   return (solutions,pockets,cueVals,ballVals)
+
+#Given a constant cue position, draw an image showing which pocket is chosen
+def pocketMapForFixedCue(x,y,cue):
+    img = numpy.zeros(shape=(y*10,x*10))
+    
+    for a,b in product(range(y*10),range(x*10)):
+       img[a][b] = simulate(x,y,1,(float(b)/10,float(a)/10),cue, False)[1][0]
+
+    return img 
+
+    
+def heatMapForFixedCue(x,y,cue):
+    img = numpy.zeros(shape=(y*10,x*10))
+    
+    for a,b in product(range(y*10),range(x*10)):
+       img[a][b] = simulate(x,y,1,(float(b)/10,float(a)/10),cue, False)[0][0]
+
+    return img 
+
+def meanHeatMap(x,y):
+    img = numpy.zeros(shape=(y*10,x*10))
+    
+    for a,b in product(range(y*10),range(x*10)):
+       img[a][b] = numpy.mean(simulate(x,y,1000,False,(float(b)/10,float(a)/10), False)[0])
+
+    return img 
+
+def tableSizeMeanAndVariance():
+    results = []
+    for i in chain(numpy.arange(1,5,0.1),numpy.arange(5,25,0.5)):
+        s = simulate(5,i,10000)[0]
+        k = float(i)/5
+        
+        results.append( [k, (numpy.mean(s)  , numpy.var(s)  )] )        
+    return results
+
+
+
+    
+    
