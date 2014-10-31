@@ -2,6 +2,7 @@ from math import *
 from random import *
 import matplotlib.pyplot as plt
 
+#describe the pool table
 class poolTable:
   def __init__(self,x,y):
     longSide = float(max(x,y))
@@ -17,6 +18,7 @@ class poolTable:
     self.long = longSide
     self.short = shortSide
 
+#angle given all other variables in degrees
 def angle(pocket,cue,ball):
   a = length(cue,ball)
   b = length(cue,pocket)
@@ -26,9 +28,11 @@ def angle(pocket,cue,ball):
       / (2*a*b)
   ))
 
+#length between two points
 def length(x,y):
   return sqrt(pow(x[0] - y[0],2) + pow(x[1] - y[1],2))
 
+#returns best angle choice between the pockets
 def bestAngle(table,cue,ball):
   solution = False
   for pocket in table.points:
@@ -37,6 +41,7 @@ def bestAngle(table,cue,ball):
       solution = (pocket, pocketAngle)
   return solution
 
+#show a representative plot given all variables
 def visualize(cue,ball,pocket,table,angle):
   tableX = map(lambda x: x[0], table.points)
   tableY = map(lambda x: x[1], table.points)
@@ -55,6 +60,7 @@ def visualize(cue,ball,pocket,table,angle):
   plt.text(cue[0],cue[1]-1,str(angle))
   plt.show()
 
+#iterate through many random simulations
 def simulate(x,y,iterations): #insert functionality for fixed cue ball
   table = poolTable(x,y)
   solutions = []
